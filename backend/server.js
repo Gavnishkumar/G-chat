@@ -6,6 +6,7 @@ const router = require('./Route/userRoutes');
 const userRoutes= require('./Route/userRoutes');
 const ChatRoutes= require('./Route/ChatRoutes')
 const messageRoutes= require('./Route/messageRoutes');
+const path= require('path');
 const ImageKit = require('imagekit');
 
 const app= express();
@@ -24,12 +25,28 @@ const imagekit = new ImageKit({
       "Origin, X-Requested-With, Content-Type, Accept");
     next();
   });
-app.get('/',(req,res)=>{
-    res.send("This is home");
-})
+// app.get('/',(req,res)=>{
+//     res.send("This is home");
+// })
 app.use('/api/user',userRoutes);
 app.use('/api/chats',ChatRoutes);
 app.use('/api/message',messageRoutes);
+
+// -------------------------Deployment-----------------------------------
+    const __dirname1=path.resolve();
+    if(process.env.NODE_ENV==="production"){
+        app.use(express.static(path.join(__dirname1,"../build")));
+        app.get('*',(req,res)=>{
+            res.sendFile(path.resolve(__dirname1,"../build","index.html"));
+        })
+    }else{
+        app.get('/',(req,res)=>{
+            res.send("api is running successfully");
+        })
+    }
+
+
+// -------------------------Deployment-----------------------------------
 app.get('/imageauth',(req, res)=> {
     var result = imagekit.getAuthenticationParameters();
     res.send(result);
